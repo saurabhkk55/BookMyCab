@@ -1,5 +1,6 @@
 package com.saurabhorg.uber.uberApllication.services.impl;
 
+import com.saurabhorg.uber.uberApllication.dto.DriverDTO;
 import com.saurabhorg.uber.uberApllication.dto.RideDTO;
 import com.saurabhorg.uber.uberApllication.entities.DriverEntity;
 import com.saurabhorg.uber.uberApllication.entities.RideEntity;
@@ -13,7 +14,10 @@ import com.saurabhorg.uber.uberApllication.services.RideRequestService;
 import com.saurabhorg.uber.uberApllication.services.RideService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -69,6 +73,48 @@ public class DriverServiceImpl implements DriverService {
         RideEntity savedRideEntity = rideService.updateRideStatus(rideEntity, RideStatus.ONGOING);
 
         return modelMapper.map(savedRideEntity, RideDTO.class);
+    }
+
+    @Override
+    public DriverDTO getMyProfile() {
+        DriverEntity currentDriverEntity = getCurrentDriver();
+        return modelMapper.map(currentDriverEntity, DriverDTO.class);
+    }
+
+    @Override
+    @Transactional
+    public RideDTO endRide(Long rideId) {
+        RideEntity ride = rideService.getRideById(rideId);
+        DriverEntity driver = getCurrentDriver();
+
+        if(!driver.equals(ride.getDriver())) {
+            throw new RuntimeException("Driver cannot start a ride as he has not accepted it earlier");
+        }
+
+        if(!ride.getRideStatus().equals(RideStatus.ONGOING)) {
+            throw new RuntimeException("Ride status is not ONGOING hence cannot be ended, status: "+ride.getRideStatus());
+        }
+
+        ride.setEndedAt(LocalDateTime.now());
+        RideEntity savedRide = rideService.updateRideStatus(ride, RideStatus.ENDED);
+        updateDriverAvailability(driver, true);
+
+//        paymentService.processPayment(ride);
+
+        return modelMapper.map(savedRide, RideDTO.class);
+    }
+
+    @Override
+    public Page<RideDTO> getAllMyRides(PageRequest pageRequest) {
+        DriverEntity currentDriverEntity = getCurrentDriver();
+        return rideService.getAllRidesOfDriver(currentDriverEntity, pageRequest)
+                .map(ride -> modelMapper.map(ride, RideDTO.class));
+    }
+
+    @Override
+    public DriverEntity updateDriverAvailability(DriverEntity driver, boolean available) {
+        driver.setAvailable(available);
+        return driverRepository.save(driver);
     }
 
     @Override

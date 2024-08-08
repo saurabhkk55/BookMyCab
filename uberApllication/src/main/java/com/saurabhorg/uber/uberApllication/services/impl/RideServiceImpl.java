@@ -3,6 +3,7 @@ package com.saurabhorg.uber.uberApllication.services.impl;
 import com.saurabhorg.uber.uberApllication.entities.DriverEntity;
 import com.saurabhorg.uber.uberApllication.entities.RideEntity;
 import com.saurabhorg.uber.uberApllication.entities.RideRequestEntity;
+import com.saurabhorg.uber.uberApllication.entities.RiderEntity;
 import com.saurabhorg.uber.uberApllication.entities.enums.RideRequestStatus;
 import com.saurabhorg.uber.uberApllication.entities.enums.RideStatus;
 import com.saurabhorg.uber.uberApllication.exceptions.ResourceNotFoundException;
@@ -11,6 +12,8 @@ import com.saurabhorg.uber.uberApllication.services.RideRequestService;
 import com.saurabhorg.uber.uberApllication.services.RideService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
@@ -47,6 +50,16 @@ public class RideServiceImpl implements RideService {
     public RideEntity updateRideStatus(RideEntity ride, RideStatus rideStatus) {
         ride.setRideStatus(rideStatus);
         return rideRepository.save(ride);
+    }
+
+    @Override
+    public Page<RideEntity> getAllRidesOfRider(RiderEntity rider, PageRequest pageRequest) {
+        return rideRepository.findByRider(rider, pageRequest);
+    }
+
+    @Override
+    public Page<RideEntity> getAllRidesOfDriver(DriverEntity driver, PageRequest pageRequest) {
+        return rideRepository.findByDriver(driver, pageRequest);
     }
 
     private String generateRandomOTP() {
