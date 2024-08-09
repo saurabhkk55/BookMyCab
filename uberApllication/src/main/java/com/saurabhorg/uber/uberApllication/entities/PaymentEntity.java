@@ -3,34 +3,30 @@ package com.saurabhorg.uber.uberApllication.entities;
 import com.saurabhorg.uber.uberApllication.entities.enums.PaymentMethod;
 import com.saurabhorg.uber.uberApllication.entities.enums.PaymentStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
+@Entity
 @Builder
-@Table(name = "payment")
 public class PaymentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "payment_id")
     private Long id;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ride_id")
     private RideEntity ride;
 
     private Double amount;
-
-    @Enumerated(EnumType.STRING)
-    private PaymentMethod paymentMethod;
 
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;

@@ -42,7 +42,6 @@ public class RideServiceImpl implements RideService {
         rideEntity.setId(null);
 
         rideRequestService.update(rideRequestEntity);
-        System.out.println("done3");
         return rideRepository.save(rideEntity);
     }
 

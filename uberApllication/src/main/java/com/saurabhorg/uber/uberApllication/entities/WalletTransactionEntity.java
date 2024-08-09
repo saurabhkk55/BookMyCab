@@ -35,11 +35,16 @@ public class WalletTransactionEntity {
     @CreationTimestamp
     private LocalDateTime timeStamp;
 
+    private String creditTo;
+
+    private String debitFrom;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "wallet_id")
     private WalletEntity wallet;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    // @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ride_id")
     private RideEntity ride;
 }

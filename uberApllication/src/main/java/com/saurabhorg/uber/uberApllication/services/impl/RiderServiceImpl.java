@@ -1,13 +1,11 @@
 package com.saurabhorg.uber.uberApllication.services.impl;
 
-import com.saurabhorg.uber.uberApllication.dto.DriverDTO;
-import com.saurabhorg.uber.uberApllication.dto.RideDTO;
-import com.saurabhorg.uber.uberApllication.dto.RideRequestDTO;
-import com.saurabhorg.uber.uberApllication.dto.RiderDTO;
+import com.saurabhorg.uber.uberApllication.dto.*;
 import com.saurabhorg.uber.uberApllication.entities.*;
 import com.saurabhorg.uber.uberApllication.entities.enums.RideRequestStatus;
 import com.saurabhorg.uber.uberApllication.entities.enums.RideStatus;
 import com.saurabhorg.uber.uberApllication.exceptions.ResourceNotFoundException;
+import com.saurabhorg.uber.uberApllication.repositories.DriverRepository;
 import com.saurabhorg.uber.uberApllication.repositories.RideRepository;
 import com.saurabhorg.uber.uberApllication.repositories.RideRequestRepository;
 import com.saurabhorg.uber.uberApllication.repositories.RiderRepository;
@@ -28,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RiderServiceImpl implements RiderService {
     private final RideRequestRepository rideRequestRepository;
+    private final DriverRepository driverRepository;
     private final RiderRepository riderRepository;
     private final ModelMapper modelMapper;
     private final RideStrategyManager rideStrategyManager;
@@ -50,7 +49,6 @@ public class RiderServiceImpl implements RiderService {
         return modelMapper.map(savedRideRequestEntity, RideRequestDTO.class);
     }
 
-
     @Override
     public RideDTO cancelRide(Long rideId) {
         RiderEntity rider = getCurrentRider();
@@ -71,8 +69,25 @@ public class RiderServiceImpl implements RiderService {
     }
 
     @Override
-    public DriverDTO rateDriver(Long rideId, Integer rating) {
-        return null;
+    public DriverDTO rateDriver(RatingDTO ratingDTO) {
+        RideEntity ride = rideService.getRideById(ratingDTO.getRideId());
+
+        if(!ride.getRideStatus().equals(RideStatus.ENDED)) {
+            // throw new RuntimeException("Rating option will be enabled once ride status is ENDED. Currently, ride status is " + ride.getRideStatus());
+            throw new RuntimeException("Rating option will be enabled once you reached your destination safely 😊." + ride.getRideStatus());
+        }
+
+        DriverEntity driver = ride.getDriver();
+        double newAverageRating = ((driver.getRating() * driver.getRatingCount()) + ratingDTO.getRating()) / (driver.getRatingCount() + 1);
+        // get the desired rating with one decimal place
+        newAverageRating = Math.round(newAverageRating * 10) / 10.0;
+
+        driver.setRating(newAverageRating);
+        driver.setRatingCount(driver.getRatingCount() + 1);
+
+        DriverEntity savedDriver = driverRepository.save(driver);
+
+        return modelMapper.map(savedDriver, DriverDTO.class);
     }
 
     @Override
@@ -98,7 +113,6 @@ public class RiderServiceImpl implements RiderService {
                 .build();
         return riderRepository.save(rider);
     }
-
 
     public RiderEntity getCurrentRider() {
         return riderRepository.findById(1L).orElseThrow(() -> new ResourceNotFoundException("No rider exist"));

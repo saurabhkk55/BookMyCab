@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 public interface DriverService {
     RideDTO acceptRide(Long rideRequestId);
 
+    RideDTO cancelRide(Long rideId);
+
     RideDTO startRide(Long rideId, String otp);
 
     DriverDTO getMyProfile();

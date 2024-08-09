@@ -20,7 +20,9 @@ public class DriverEntity {
     @Column(name = "driver_id")
     private Long id;
 
-    private Double rating;
+    private Double rating = 0.0;
+    private Integer ratingCount = 0;
+
     private Boolean available;
     @JsonProperty("vehicle_id")
     private String vehicleId;

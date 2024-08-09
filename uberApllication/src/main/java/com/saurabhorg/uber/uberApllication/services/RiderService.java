@@ -1,9 +1,6 @@
 package com.saurabhorg.uber.uberApllication.services;
 
-import com.saurabhorg.uber.uberApllication.dto.DriverDTO;
-import com.saurabhorg.uber.uberApllication.dto.RideDTO;
-import com.saurabhorg.uber.uberApllication.dto.RideRequestDTO;
-import com.saurabhorg.uber.uberApllication.dto.RiderDTO;
+import com.saurabhorg.uber.uberApllication.dto.*;
 import com.saurabhorg.uber.uberApllication.entities.RiderEntity;
 import com.saurabhorg.uber.uberApllication.entities.UserEntity;
 import org.springframework.data.domain.Page;
@@ -14,7 +11,7 @@ public interface RiderService {
 
     RideDTO cancelRide(Long rideId);
 
-    DriverDTO rateDriver(Long rideId, Integer rating);
+    DriverDTO rateDriver(RatingDTO ratingDTO);
 
     RiderDTO getMyProfile();
 

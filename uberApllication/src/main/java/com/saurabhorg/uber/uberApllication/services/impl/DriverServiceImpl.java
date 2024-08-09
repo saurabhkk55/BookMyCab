@@ -10,6 +10,7 @@ import com.saurabhorg.uber.uberApllication.entities.enums.RideStatus;
 import com.saurabhorg.uber.uberApllication.exceptions.ResourceNotFoundException;
 import com.saurabhorg.uber.uberApllication.repositories.DriverRepository;
 import com.saurabhorg.uber.uberApllication.services.DriverService;
+import com.saurabhorg.uber.uberApllication.services.PaymentService;
 import com.saurabhorg.uber.uberApllication.services.RideRequestService;
 import com.saurabhorg.uber.uberApllication.services.RideService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class DriverServiceImpl implements DriverService {
     private final RideRequestService rideRequestService;
     private final ModelMapper modelMapper;
     private final RideService rideService;
+    private final PaymentService paymentService;
 
     @Override
     public RideDTO acceptRide(Long rideRequestId) {
@@ -43,16 +45,34 @@ public class DriverServiceImpl implements DriverService {
             throw new RuntimeException("Driver cannot accept ride due to unavailability");
         }
 
-        currentDriver.setAvailable(false);
         currentDriver.setVehicleId("Honda-Car");
-        DriverEntity savedDriverEntity = driverRepository.save(currentDriver);
-        System.out.println("done1");
+        DriverEntity savedDriverEntity = updateDriverAvailability(currentDriver, false);
+
         RideEntity rideEntity = rideService.createNewRide(rideRequestEntity, savedDriverEntity);
-        System.out.println("done2");
         return modelMapper.map(rideEntity, RideDTO.class);
     }
 
     @Override
+    public RideDTO cancelRide(Long rideId) {
+        RideEntity ride = rideService.getRideById(rideId);
+
+        DriverEntity driver = getCurrentDriver();
+        if(!driver.equals(ride.getDriver())) {
+            throw new RuntimeException("Driver cannot start a ride as he has not accepted it earlier");
+        }
+
+        if(!ride.getRideStatus().equals(RideStatus.CONFIRMED)) {
+            throw new RuntimeException("Ride cannot be cancelled, invalid status: "+ride.getRideStatus());
+        }
+
+        rideService.updateRideStatus(ride, RideStatus.CANCELLED);
+        updateDriverAvailability(driver, true);
+
+        return modelMapper.map(ride, RideDTO.class);
+    }
+
+    @Override
+    @Transactional
     public RideDTO startRide(Long rideId, String otp) {
         RideEntity rideEntity = rideService.getRideById(rideId);
         DriverEntity driverEntity = getCurrentDriver();
@@ -72,13 +92,9 @@ public class DriverServiceImpl implements DriverService {
         rideEntity.setStartedAt(LocalDateTime.now());
         RideEntity savedRideEntity = rideService.updateRideStatus(rideEntity, RideStatus.ONGOING);
 
-        return modelMapper.map(savedRideEntity, RideDTO.class);
-    }
+        paymentService.createNewPayment(savedRideEntity);
 
-    @Override
-    public DriverDTO getMyProfile() {
-        DriverEntity currentDriverEntity = getCurrentDriver();
-        return modelMapper.map(currentDriverEntity, DriverDTO.class);
+        return modelMapper.map(savedRideEntity, RideDTO.class);
     }
 
     @Override
@@ -99,9 +115,15 @@ public class DriverServiceImpl implements DriverService {
         RideEntity savedRide = rideService.updateRideStatus(ride, RideStatus.ENDED);
         updateDriverAvailability(driver, true);
 
-//        paymentService.processPayment(ride);
+        paymentService.processPayment(ride);
 
         return modelMapper.map(savedRide, RideDTO.class);
+    }
+
+    @Override
+    public DriverDTO getMyProfile() {
+        DriverEntity currentDriverEntity = getCurrentDriver();
+        return modelMapper.map(currentDriverEntity, DriverDTO.class);
     }
 
     @Override

@@ -30,6 +30,8 @@ public class WalletServiceImpl implements WalletService {
         WalletTransactionEntity walletTransaction = WalletTransactionEntity.builder()
                 .transactionId(transactionId)
                 .ride(ride)
+                .debitFrom(ride.getRider().getUser().getName())
+                .creditTo(ride.getDriver().getUser().getName())
                 .wallet(wallet)
                 .transactionType(TransactionType.CREDIT)
                 .transactionMethod(transactionMethod)
@@ -52,6 +54,8 @@ public class WalletServiceImpl implements WalletService {
         WalletTransactionEntity walletTransaction = WalletTransactionEntity.builder()
                 .transactionId(transactionId)
                 .ride(ride)
+                .debitFrom(ride.getRider().getUser().getName())
+                .creditTo(ride.getDriver().getUser().getName())
                 .wallet(wallet)
                 .transactionType(TransactionType.DEBIT)
                 .transactionMethod(transactionMethod)
@@ -60,7 +64,7 @@ public class WalletServiceImpl implements WalletService {
 
         walletTransactionService.createNewWalletTransaction(walletTransaction);
 
-//        wallet.getTransactions().add(walletTransaction);
+        // wallet.getTransactions().add(walletTransaction);
 
         return walletRepository.save(wallet);
     }

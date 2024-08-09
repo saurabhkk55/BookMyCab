@@ -29,5 +29,5 @@ public class WalletEntity {
 
     @OneToMany(mappedBy = "wallet", fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<WalletTransactionEntity> transaction;
+    private List<WalletTransactionEntity> transactions;
 }
