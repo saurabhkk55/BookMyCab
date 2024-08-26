@@ -77,6 +77,8 @@ public class RiderServiceImpl implements RiderService {
             throw new RuntimeException("Rating option will be enabled once you reached your destination safely 😊." + ride.getRideStatus());
         }
 
+        // Avoid rating again if it is already done // Implement
+
         DriverEntity driver = ride.getDriver();
         double newAverageRating = ((driver.getRating() * driver.getRatingCount()) + ratingDTO.getRating()) / (driver.getRatingCount() + 1);
         // get the desired rating with one decimal place
