@@ -17,7 +17,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "ride_request")
+@Table(name = "ride_request", indexes = {
+        @Index(name = "idx_ride_request_rider", columnList = "rider_id")
+})
 public class RideRequestEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,5 +44,6 @@ public class RideRequestEntity {
     private Double fare;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rider_id")
     private RiderEntity rider;
 }

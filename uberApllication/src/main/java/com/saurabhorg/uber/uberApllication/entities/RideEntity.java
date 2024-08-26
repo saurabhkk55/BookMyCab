@@ -20,7 +20,10 @@ import java.time.LocalDateTime;
 //@Entity
 //@AllArgsConstructor
 //@NoArgsConstructor
-@Table(name = "ride")
+@Table(name = "ride", indexes = {
+        @Index(name = "idx_ride_rider", columnList = "rider_id"),
+        @Index(name = "idx_ride_driver", columnList = "driver_id")
+})
 public class RideEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

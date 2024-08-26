@@ -24,4 +24,6 @@ public interface DriverService {
     DriverEntity updateDriverAvailability(DriverEntity driver, boolean available);
 
     DriverEntity getCurrentDriver();
+
+    DriverEntity createNewDriver(DriverEntity driverEntity);
 }

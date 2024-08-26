@@ -143,4 +143,9 @@ public class DriverServiceImpl implements DriverService {
     public DriverEntity getCurrentDriver() {
         return driverRepository.findById(2L).orElseThrow(() -> new ResourceNotFoundException("Driver not found with " + "id " + 2));
     }
+
+    @Override
+    public DriverEntity createNewDriver(DriverEntity driver) {
+        return driverRepository.save(driver);
+    }
 }
