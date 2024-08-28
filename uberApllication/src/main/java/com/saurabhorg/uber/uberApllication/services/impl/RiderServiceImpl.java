@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -117,6 +118,11 @@ public class RiderServiceImpl implements RiderService {
     }
 
     public RiderEntity getCurrentRider() {
-        return riderRepository.findById(1L).orElseThrow(() -> new ResourceNotFoundException("No rider exist"));
+        // return riderRepository.findById(1L).orElseThrow(() -> new ResourceNotFoundException("No rider exist"));
+
+        UserEntity userEntity = (UserEntity) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return riderRepository.findByUser(userEntity).orElseThrow(() -> new ResourceNotFoundException(
+                "Rider not associated with user with id: "+userEntity.getUserId()
+        ));
     }
 }

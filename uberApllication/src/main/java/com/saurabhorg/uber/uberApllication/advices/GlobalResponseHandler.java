@@ -33,3 +33,8 @@ public class GlobalResponseHandler implements ResponseBodyAdvice<Object> {
         return new ApiResponse<>(body);
     }
 }
+
+// Browse on chrome:
+// - http://localhost:9000/v3/api-docs
+// - http://localhost:9000/swagger-ui/index.html
+// - http://localhost:9000/actuator
