@@ -14,6 +14,7 @@ import com.saurabhorg.uber.uberApllication.services.RideService;
 import com.saurabhorg.uber.uberApllication.services.RiderService;
 import com.saurabhorg.uber.uberApllication.strategies.RideStrategyManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +26,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RiderServiceImpl implements RiderService {
     private final RideRequestRepository rideRequestRepository;
     private final DriverRepository driverRepository;
@@ -38,6 +40,7 @@ public class RiderServiceImpl implements RiderService {
     @Override
     @Transactional
     public RideRequestDTO requestRide(RideRequestDTO rideRequestDTO) {
+        log.info("rideRequestDTO: {}", rideRequestDTO);
         RiderEntity currentRider = getCurrentRider();
         RideRequestEntity rideRequestEntity = modelMapper.map(rideRequestDTO, RideRequestEntity.class);
         rideRequestEntity.setRider(currentRider);
